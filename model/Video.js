@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import pkg from 'mongoose';
+const { Schema } = pkg;
 
 const videosSchema = new mongoose.Schema({
   id: {
@@ -15,7 +17,8 @@ const videosSchema = new mongoose.Schema({
   url: {
     type: String,
     required: true
-  }
+  },
+  categories_id: [{ type: Schema.Types.ObjectId, ref: 'Category', required: true }],
 });
 
 const videos = mongoose.model('videos', videosSchema);

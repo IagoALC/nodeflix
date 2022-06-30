@@ -3,7 +3,8 @@ import video from '../model/Video.js';
 class VideoController {
   static async getAllVideos(req, res) {
     try {
-      const videos = await video.find();
+      const query = req.query.title ? { title: req.query.title } : {};
+      const videos = await video.find(query);
       res.status(200).json({
         success: true,
         data: videos
@@ -22,6 +23,21 @@ class VideoController {
       res.status(200).json({
         success: true,
         data: video
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
+  static async getVideoByCategory(req, res) {
+    try {
+      const videos = await video.find({ categories_id: req.params.id });
+      res.status(200).json({
+        success: true,
+        data: videos
       });
     } catch (error) {
       res.status(500).json({
