@@ -1,12 +1,29 @@
-import video from '../model/Video.js';
+import videoModel from '../model/Video.js';
 
 class VideoController {
   static async getAllVideos(req, res) {
     try {
+      const limit =  5;
       const query = req.query.title ? { title: req.query.title } : {};
-      const videos = await video.find(query);
+      const page = req.query.page || 1;
+      const offset = (page - 1) * limit;
+      const allVideos = await videoModel.find(query).countDocuments();
+      const videos = await videoModel.find(query).skip(offset).limit(limit);
+      const pageTotal = allVideos > 0 ? Math.ceil(allVideos / limit) : 1;
+      const next = page < pageTotal ? `/videos?page=${parseInt(page) + 1}` : null;
+      const previous = page > 1 ? `/videos?page=${parseInt(page) - 1}` : null;
+      if(page > pageTotal) {
+        res.status(404).json({
+          success: false,
+          message: 'Page not found'
+        })
+      }
       res.status(200).json({
         success: true,
+        next: next,
+        previous: previous,
+        pageTotal: pageTotal,
+        count: videos.length,
         data: videos
       });
     } catch (error) {
@@ -19,7 +36,7 @@ class VideoController {
 
   static async getVideoById(req, res) {
     try {
-      const video = await video.findById(req.params.id);
+      const video = await videoModel.findById(req.params.id);
       res.status(200).json({
         success: true,
         data: video
@@ -34,7 +51,7 @@ class VideoController {
 
   static async getVideoByCategory(req, res) {
     try {
-      const videos = await video.find({ categories_id: req.params.id });
+      const videos = await videoModel.find({ categories_id: req.params.id });
       res.status(200).json({
         success: true,
         data: videos
@@ -49,7 +66,7 @@ class VideoController {
 
   static async createVideo(req, res) {
     try {
-      const newVideo = await video.create(req.body);
+      const newVideo = await videoModel.create(req.body);
       res.status(201).json({
         success: true,
         data: newVideo
@@ -64,7 +81,7 @@ class VideoController {
 
   static async updateVideo(req, res) {
     try {
-      const updatedVideo = await video.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      const updatedVideo = await videoModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
       res.status(200).json({
         success: true,
         data: updatedVideo
@@ -79,7 +96,7 @@ class VideoController {
 
   static async deleteVideo(req, res) {
     try {
-      await video.findByIdAndDelete(req.params.id);
+      await videoModel.findByIdAndDelete(req.params.id);
       res.status(200).json({
         success: true,
         message: 'Video deleted successfully'
