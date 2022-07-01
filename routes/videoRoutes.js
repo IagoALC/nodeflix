@@ -4,6 +4,7 @@ import middleware from "../auth/middleware.js";
 
 const routes = express.Router();
 
+routes.get("/videos/free", VideoController.getFreeVideos);
 routes.get("/videos", middleware.bearer, VideoController.getAllVideos);
 routes.get("/videos/:id", middleware.bearer, VideoController.getVideoById);
 routes.post("/videos", middleware.bearer, VideoController.createVideo);

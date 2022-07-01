@@ -34,6 +34,23 @@ class VideoController {
     }
   }
 
+  static async getFreeVideos(req, res) {
+    try {
+      const limit =  5;
+      const videos = await videoModel.find().limit(limit);
+      res.status(200).json({
+        success: true,
+        count: videos.length,
+        data: videos
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  }
+
   static async getVideoById(req, res) {
     try {
       const video = await videoModel.findById(req.params.id);
